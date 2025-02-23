@@ -167,7 +167,7 @@ resource "azurerm_lb_rule" "app_tcp_80" {
   protocol                       = "Tcp"
   frontend_port                  = 80
   backend_port                   = 80
-  frontend_ip_configuration_name = "app_lb_config"
+  frontend_ip_configuration_name = azurerm_lb.app_lb.frontend_ip_configuration["name"]
 }
 
 resource "azurerm_lb_rule" "app_tcp_443" {
@@ -176,5 +176,5 @@ resource "azurerm_lb_rule" "app_tcp_443" {
   protocol                       = "Tcp"
   frontend_port                  = 443
   backend_port                   = 443
-  frontend_ip_configuration_name = "app_lb_config"
+  frontend_ip_configuration_name = azurerm_lb.app_lb.frontend_ip_configuration["name"]
 }
