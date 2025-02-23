@@ -22,7 +22,7 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = azurerm_resource_group.rg.name
   address_space       = ["10.0.0.0/16"]
 }
-resource "azurerm_subnet" "AzureBastionSubnet" {
+resource "azurerm_subnet" "bastion_subnet" {
   name                 = "AzureBastionSubnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
@@ -50,7 +50,7 @@ resource "azurerm_network_interface" "app_vm_interface" {
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "internal"
+    name                          = "app_vm_interface"
     subnet_id                     = azurerm_subnet.app_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
@@ -61,7 +61,7 @@ resource "azurerm_network_interface" "db_vm_interface" {
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "internal"
+    name                          = "db_vm_interface"
     subnet_id                     = azurerm_subnet.db_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
@@ -83,7 +83,7 @@ resource "azurerm_linux_virtual_machine" "app-vm" {
     sku       = "20_04-lts"
     version   = "latest"
   }
-   os_disk {
+  os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -104,7 +104,7 @@ resource "azurerm_linux_virtual_machine" "db-vm" {
     sku       = "20_04-lts"
     version   = "latest"
   }
-   os_disk {
+  os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -132,7 +132,7 @@ resource "azurerm_bastion_host" "bastion" {
   sku = "Standard"
   ip_configuration {
     name                 = "bastion_config"
-    subnet_id            = azurerm_subnet.AzureBastionSubnet.id
+    subnet_id            = azurerm_subnet.bastion_subnet.id
     public_ip_address_id = azurerm_public_ip.public_ip_bastion.id
   }
 }
@@ -155,7 +155,7 @@ resource "azurerm_lb_backend_address_pool" "app_lb_backend_pool" {
 
 resource "azurerm_network_interface_backend_address_pool_association" "app_lb_association" {
   network_interface_id    = azurerm_network_interface.app_vm_interface.id
-  ip_configuration_name   = azurerm_network_interface.app_vm_interface.ip_configuration.name
+  ip_configuration_name   =azurerm_network_interface.app_vm_interface.name
   backend_address_pool_id = azurerm_lb_backend_address_pool.app_lb_backend_pool.id
 }
 
