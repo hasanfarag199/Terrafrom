@@ -68,12 +68,13 @@ resource "azurerm_network_interface" "db_vm_interface" {
 }
 
 resource "azurerm_linux_virtual_machine" "app-vm" {
-  name                = "app-vm"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  size                = "Standard_F2"
-  admin_username      = "adminuser"
-  admin_password      = "adminPa$$word"
+  name                            = "app-vm"
+  resource_group_name             = azurerm_resource_group.rg.name
+  location                        = azurerm_resource_group.rg.location
+  size                            = "Standard_F2"
+  admin_username                  = "adminuser"
+  admin_password                  = "adminPa$$word"
+  disable_password_authentication = ""
   network_interface_ids = [
     azurerm_network_interface.app_vm_interface.id,
   ]
@@ -165,7 +166,7 @@ resource "azurerm_lb_rule" "app_tcp_80" {
   protocol                       = "Tcp"
   frontend_port                  = 80
   backend_port                   = 80
-  frontend_ip_configuration_name = azurerm_lb.app_lb.frontend_ip_configuration.name
+  frontend_ip_configuration_name = "app_lb_config"
 }
 
 resource "azurerm_lb_rule" "app_tcp_443" {
@@ -174,5 +175,5 @@ resource "azurerm_lb_rule" "app_tcp_443" {
   protocol                       = "Tcp"
   frontend_port                  = 443
   backend_port                   = 443
-  frontend_ip_configuration_name = azurerm_lb.app_lb.frontend_ip_configuration.name
+  frontend_ip_configuration_name = "app_lb_config"
 }
