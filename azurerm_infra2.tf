@@ -74,7 +74,7 @@ resource "azurerm_linux_virtual_machine" "app-vm" {
   size                            = "Standard_F2"
   admin_username                  = "adminuser"
   admin_password                  = "adminPa$$word"
-  disable_password_authentication = ""
+  disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.app_vm_interface.id,
   ]
@@ -90,12 +90,13 @@ resource "azurerm_linux_virtual_machine" "app-vm" {
   }
 }
 resource "azurerm_linux_virtual_machine" "db-vm" {
-  name                = "db-vm"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  size                = "Standard_F2"
-  admin_username      = "adminuser"
-  admin_password      = "adminPa$$word"
+  name                            = "db-vm"
+  resource_group_name             = azurerm_resource_group.rg.name
+  location                        = azurerm_resource_group.rg.location
+  size                            = "Standard_F2"
+  admin_username                  = "adminuser"
+  admin_password                  = "adminPa$$word"
+  disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.db_vm_interface.id,
   ]
