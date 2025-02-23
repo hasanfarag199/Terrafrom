@@ -115,7 +115,7 @@ resource "azurerm_public_ip" "public_ip_bastion" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   allocation_method   = "Static"
-  sku = "Standard"
+  sku                 = "Standard"
 
 }
 resource "azurerm_public_ip" "public_ip_lb" {
@@ -123,13 +123,13 @@ resource "azurerm_public_ip" "public_ip_lb" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   allocation_method   = "Static"
-  sku = "Standard"
+  sku                 = "Standard"
 }
 resource "azurerm_bastion_host" "bastion" {
   name                = "bastion"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  sku = "Standard"
+  sku                 = "Standard"
   ip_configuration {
     name                 = "bastion_config"
     subnet_id            = azurerm_subnet.bastion_subnet.id
@@ -141,7 +141,7 @@ resource "azurerm_lb" "app_lb" {
   name                = "app_lb"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  sku = "Standard"
+  sku                 = "Standard"
   frontend_ip_configuration {
     name                 = "app_lb_config"
     public_ip_address_id = azurerm_public_ip.public_ip_lb.id
@@ -155,7 +155,7 @@ resource "azurerm_lb_backend_address_pool" "app_lb_backend_pool" {
 
 resource "azurerm_network_interface_backend_address_pool_association" "app_lb_association" {
   network_interface_id    = azurerm_network_interface.app_vm_interface.id
-  ip_configuration_name   =azurerm_network_interface.app_vm_interface.name
+  ip_configuration_name   = azurerm_network_interface.app_vm_interface.name
   backend_address_pool_id = azurerm_lb_backend_address_pool.app_lb_backend_pool.id
 }
 

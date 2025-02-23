@@ -27,7 +27,7 @@ resource "azurerm_storage_account" "upload_storage_account" {
 
 resource "azurerm_storage_container" "upload_container" {
   name                  = "upload-container"
-  storage_account_id  = azurerm_storage_account.upload_storage_account.id
+  storage_account_id    = azurerm_storage_account.upload_storage_account.id
   container_access_type = "blob"
 }
 resource "azurerm_servicebus_namespace" "upload_queue_ns" {
@@ -38,13 +38,13 @@ resource "azurerm_servicebus_namespace" "upload_queue_ns" {
 
 }
 resource "azurerm_servicebus_queue" "upload_queue" {
-  name                = "upload-queue"
-  namespace_id = azurerm_servicebus_namespace.upload_queue_ns.id
+  name                 = "upload-queue"
+  namespace_id         = azurerm_servicebus_namespace.upload_queue_ns.id
   partitioning_enabled = true
 }
 resource "azurerm_eventgrid_event_subscription" "upload_subscription" {
-  name  = "upload-event-subscription"
-  scope = azurerm_storage_container.upload_container.id
+  name                          = "upload-event-subscription"
+  scope                         = azurerm_storage_container.upload_container.id
   service_bus_queue_endpoint_id = azurerm_servicebus_queue.upload_queue.id
-  included_event_types = ["Microsoft.Storage.BlobCreated"]
+  included_event_types          = ["Microsoft.Storage.BlobCreated"]
 }
