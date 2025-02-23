@@ -83,6 +83,10 @@ resource "azurerm_linux_virtual_machine" "app-vm" {
     sku       = "20_04-lts"
     version   = "latest"
   }
+   os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
 }
 resource "azurerm_linux_virtual_machine" "db-vm" {
   name                = "db-vm"
@@ -99,6 +103,10 @@ resource "azurerm_linux_virtual_machine" "db-vm" {
     offer     = "0001-com-ubuntu-server-focal"
     sku       = "20_04-lts"
     version   = "latest"
+  }
+   os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
   }
 }
 
