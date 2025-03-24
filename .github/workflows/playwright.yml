@@ -1,0 +1,71 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright tests
+      id: playwright
+      run: npx playwright test
+      continue-on-error: true  # This allows the workflow to continue even if tests fail
+    - name: Process and Send Failed Tests
+      if: failure() || steps.playwright.outcome == 'failure'
+      env:
+        AZURE_SERVICE_BUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING }}
+      run: |
+        # Install Azure CLI if not present
+        if ! command -v az &> /dev/null; then
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+        fi
+        
+        # Create a temporary file for failed tests
+        FAILED_TESTS_FILE="failed_tests.json"
+        
+        # Process Playwright report and extract failed tests
+        if [ -d "playwright-report" ]; then
+          # Convert the report to JSON format
+          npx playwright show-report --json > report.json
+          
+          # Extract failed tests
+          jq -r '.suites[] | select(.specs[] | select(.tests[] | select(.status == "failed"))) | {
+            name: .title,
+            failed_tests: [.specs[] | select(.tests[] | select(.status == "failed")) | {
+              test_name: .title,
+              status: .tests[].status,
+              error: .tests[].error
+            }]
+          }' report.json > $FAILED_TESTS_FILE
+          
+          # Send to Azure Service Bus Queue
+          if [ -s "$FAILED_TESTS_FILE" ]; then
+            echo "Sending failed tests to Azure Service Bus Queue..."
+            az servicebus queue message send \
+              --connection-string "$AZURE_SERVICE_BUS_CONNECTION_STRING" \
+              --queue-name "failed-tests" \
+              --body "$(cat $FAILED_TESTS_FILE)"
+            echo "Failed tests sent successfully"
+          else
+            echo "No failed tests found"
+          fi
+        fi
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30 
